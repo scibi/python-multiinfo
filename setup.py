@@ -18,7 +18,7 @@ readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
-    name='multiinfo',
+    name='python-multiinfo',
     version='0.1.0',
     description='Python library for sending and receiving SMS messages with MultiInfo service provided by Polkomtel',
     long_description=readme + '\n\n' + history,
@@ -32,7 +32,7 @@ setup(
     include_package_data=True,
     install_requires=[
     ],
-    license="BSD",
+    license="MIT",
     zip_safe=False,
     keywords='multiinfo',
     classifiers=[
