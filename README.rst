@@ -8,6 +8,9 @@ Python MultiInfo API
 .. image:: https://travis-ci.org/scibi/python-multiinfo.png?branch=master
         :target: https://travis-ci.org/scibi/python-multiinfo
 
+.. image:: https://coveralls.io/repos/scibi/python-multiinfo/badge.png?branch=master
+        :target: https://coveralls.io/r/scibi/python-multiinfo?branch=master
+
 .. image:: https://pypip.in/d/multiinfo/badge.png
         :target: https://crate.io/packages/multiinfo?version=latest
 

@@ -86,8 +86,8 @@ Test+1
                               keyfile='keyfile.pem',
                               certfile='certfile.pem')
 
-        with self.assertRaises(multiinfo.NoNewSMS):
-            mi.get_sms(timeout=30, manual_confirm=True)
+        self.assertRaises(multiinfo.NoNewSMS, mi.get_sms, timeout=30,
+                          manual_confirm=True)
 
     @httpretty.activate
     def test_get_sms_error(self):
@@ -103,8 +103,8 @@ Test+1
                               keyfile='keyfile.pem',
                               certfile='certfile.pem')
 
-        with self.assertRaises(multiinfo.StatusError):
-            mi.get_sms(timeout=30, manual_confirm=True)
+        self.assertRaises(multiinfo.StatusError, mi.get_sms, timeout=30,
+                          manual_confirm=True)
 
     @httpretty.activate
     def test_confirm_sms_ok(self):
@@ -146,8 +146,8 @@ Test+1
                               keyfile='keyfile.pem',
                               certfile='certfile.pem')
 
-        with self.assertRaises(multiinfo.StatusError):
-            mi.confirm_sms(message_id='64031847')
+        self.assertRaises(multiinfo.StatusError,
+                          mi.confirm_sms, message_id='64031847')
 
     def tearDown(self):
         pass
