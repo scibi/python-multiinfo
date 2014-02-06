@@ -8,9 +8,16 @@ test_multiinfo
 Tests for `multiinfo` module.
 """
 
-import unittest
+import sys
+
+if sys.version_info >= (2, 7):
+    import unittest
+else:
+    import unittest2 as unittest
+
 import httpretty
 from sure import expect
+import re
 
 
 from multiinfo import multiinfo
@@ -19,7 +26,11 @@ from multiinfo import multiinfo
 class TestMultiinfo(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.mi = multiinfo.smsapi(username='username',
+                                   password='password',
+                                   serviceid='1234',
+                                   keyfile='keyfile.pem',
+                                   certfile='certfile.pem')
 
     @httpretty.activate
     def test_get_sms_text(self):
@@ -38,13 +49,7 @@ Test+1
 050214174507""",
                                content_type="text/html")
 
-        mi = multiinfo.smsapi(username='username',
-                              password='password',
-                              serviceid='1234',
-                              keyfile='keyfile.pem',
-                              certfile='certfile.pem')
-
-        msg = mi.get_sms(timeout=30, manual_confirm=True)
+        msg = self.mi.get_sms(timeout=30, manual_confirm=True)
 
         expect(httpretty.last_request()).to.have.property(
             "querystring").being.equal({
@@ -55,6 +60,7 @@ Test+1
             'manualconfirm': ['true'],
             'deleteContent': ['false'],
         })
+
         from datetime import datetime
         expect(msg).being.equal({
             'status': 'ok',
@@ -80,30 +86,7 @@ Test+1
                                body="0\n-1",
                                content_type="text/html")
 
-        mi = multiinfo.smsapi(username='username',
-                              password='password',
-                              serviceid='1234',
-                              keyfile='keyfile.pem',
-                              certfile='certfile.pem')
-
-        self.assertRaises(multiinfo.NoNewSMS, mi.get_sms, timeout=30,
-                          manual_confirm=True)
-
-    @httpretty.activate
-    def test_get_sms_error(self):
-        httpretty.register_uri(httpretty.GET,
-                               "https://api1.multiinfo.plus.pl/getsms.aspx",
-                               body=("-24\nUsługa o podanym identyfikatorze "
-                                     "nie jest aktywna"),
-                               content_type="text/html")
-
-        mi = multiinfo.smsapi(username='username',
-                              password='password',
-                              serviceid='1234',
-                              keyfile='keyfile.pem',
-                              certfile='certfile.pem')
-
-        self.assertRaises(multiinfo.StatusError, mi.get_sms, timeout=30,
+        self.assertRaises(multiinfo.NoNewSMS, self.mi.get_sms, timeout=30,
                           manual_confirm=True)
 
     @httpretty.activate
@@ -114,13 +97,7 @@ Test+1
                                body="0\r\nOK",
                                content_type="text/html")
 
-        mi = multiinfo.smsapi(username='username',
-                              password='password',
-                              serviceid='1234',
-                              keyfile='keyfile.pem',
-                              certfile='certfile.pem')
-
-        mi.confirm_sms(message_id='64031847')
+        self.mi.confirm_sms(message_id='64031847')
 
         expect(httpretty.last_request()).to.have.property(
             "querystring").being.equal({
@@ -130,27 +107,42 @@ Test+1
             'deleteContent': ['false'],
         })
 
-    @httpretty.activate
-    def test_confirm_sms_error(self):
+    def tearDown(self):
+        pass
+
+
+class TestMultiinfoError(unittest.TestCase):
+
+    def setUp(self):
+        httpretty.enable()
         httpretty.register_uri(httpretty.GET,
-                               ("https://api1.multiinfo.plus.pl"
-                                   "/confirmsms.aspx"),
+                               re.compile('api1.multiinfo.plus.pl/(\w+).aspx'),
                                body=("-31\r\nNieprawidłowa wartość "
                                      "identyfikatora wiadomości "
                                      "potwierdzanej"),
-                               content_type="text/html")
+                               content_type="text/html; charset=utf-8")
 
-        mi = multiinfo.smsapi(username='username',
-                              password='password',
-                              serviceid='1234',
-                              keyfile='keyfile.pem',
-                              certfile='certfile.pem')
+        self.mi = multiinfo.smsapi(username='username',
+                                   password='password',
+                                   serviceid='1234',
+                                   keyfile='keyfile.pem',
+                                   certfile='certfile.pem')
 
-        self.assertRaises(multiinfo.StatusError,
-                          mi.confirm_sms, message_id='64031847')
+        self.msg_regexp = '^Wrong status.*Status: -31.*'\
+            'Message: Nieprawidłowa wartość'
+
+    def test_confirm_sms_error(self):
+        self.assertRaisesRegexp(multiinfo.StatusError, self.msg_regexp,
+                                self.mi.confirm_sms, message_id='64031847')
+
+    def test_get_sms_error(self):
+        self.assertRaisesRegexp(multiinfo.StatusError, self.msg_regexp,
+                                self.mi.get_sms, timeout=30,
+                                manual_confirm=True)
 
     def tearDown(self):
-        pass
+        httpretty.disable()
+        httpretty.reset()
 
 if __name__ == '__main__':
     unittest.main()

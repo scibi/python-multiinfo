@@ -13,7 +13,7 @@ class StatusError(Exception):
     """Raised when API call returns status other than OK."""
     def __init__(self, status, message):
         self.status = status
-        self.message = message
+        self.message = message.encode('utf8')
 
     def __str__(self):
         return ("Wrong status exception. Status: {s.status} "
