@@ -73,7 +73,6 @@ Test+1
             'content': 'Test 1',
         })
 
-
     @httpretty.activate
     def test_get_sms_nomsg(self):
         httpretty.register_uri(httpretty.GET,
@@ -87,9 +86,8 @@ Test+1
                               keyfile='keyfile.pem',
                               certfile='certfile.pem')
 
-
         with self.assertRaises(multiinfo.NoNewSMS):
-            msg = mi.get_sms(timeout=30, manual_confirm=True)
+            mi.get_sms(timeout=30, manual_confirm=True)
 
     @httpretty.activate
     def test_get_sms_error(self):
@@ -106,12 +104,13 @@ Test+1
                               certfile='certfile.pem')
 
         with self.assertRaises(multiinfo.StatusError):
-            msg = mi.get_sms(timeout=30, manual_confirm=True)
+            mi.get_sms(timeout=30, manual_confirm=True)
 
     @httpretty.activate
     def test_confirm_sms_ok(self):
         httpretty.register_uri(httpretty.GET,
-                               "https://api1.multiinfo.plus.pl/confirmsms.aspx",
+                               ("https://api1.multiinfo.plus.pl"
+                                   "/confirmsms.aspx"),
                                body="0\r\nOK",
                                content_type="text/html")
 
@@ -134,9 +133,11 @@ Test+1
     @httpretty.activate
     def test_confirm_sms_error(self):
         httpretty.register_uri(httpretty.GET,
-                               "https://api1.multiinfo.plus.pl/confirmsms.aspx",
+                               ("https://api1.multiinfo.plus.pl"
+                                   "/confirmsms.aspx"),
                                body=("-31\r\nNieprawidłowa wartość "
-                                     "identyfikatora wiadomości potwierdzanej"),
+                                     "identyfikatora wiadomości "
+                                     "potwierdzanej"),
                                content_type="text/html")
 
         mi = multiinfo.smsapi(username='username',

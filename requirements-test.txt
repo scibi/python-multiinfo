@@ -1,4 +1,7 @@
 -r requirements.txt
 flake8
 httpretty
-sure
+git+https://github.com/Polyconseil/sure.git@97da7a15d49d3f13b5f7df09a03f53632091fb90
+coverage
+coveralls
+

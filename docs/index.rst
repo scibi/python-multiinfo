@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to Python MultiInfo API's documentation!
-======================================
+================================================
 
 Contents:
 

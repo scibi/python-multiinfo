@@ -20,7 +20,8 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='python-multiinfo',
     version='0.1.0',
-    description='Python library for sending and receiving SMS messages with MultiInfo service provided by Polkomtel',
+    description=('Python library for sending and receiving SMS messages with '
+                 'MultiInfo service provided by Polkomtel'),
     long_description=readme + '\n\n' + history,
     author='Patryk Ściborek',
     author_email='patryk@sciborek.com',

@@ -3,18 +3,21 @@
 
 import requests
 
+
 class NoNewSMS(Exception):
     """Raised by smsapi.getSMS when there is no new SMS."""
     pass
 
+
 class StatusError(Exception):
     """Raised when API call returns status other than OK."""
     def __init__(self, status, message):
-        self.status=status
-        self.message=message
-    def __str__(self):
-        return "Wrong status exception. Status: {s.status} Message: {s.message}".format(s=self)
+        self.status = status
+        self.message = message
 
+    def __str__(self):
+        return ("Wrong status exception. Status: {s.status} "
+                "Message: {s.message}").format(s=self)
 
 
 class smsapi:
@@ -52,7 +55,7 @@ class smsapi:
         if msg['status'] == '0':
             msg['status'] = 'ok'
         elif int(msg['status']) < 0:
-            raise StatusError(lines[0],lines[1])
+            raise StatusError(lines[0], lines[1])
 
         if msg['message_id'] == '-1':
             raise NoNewSMS()
@@ -69,6 +72,7 @@ class smsapi:
                                                 '%d%m%y%H%M%S')
 
         return msg
+
     def confirm_sms(self, message_id, delete_content=False):
         payload = {
             'login': self.username,
@@ -79,12 +83,6 @@ class smsapi:
         r = requests.get(self.base_url+self.path_confirm, params=payload,
                          cert=self.cert)
         lines = r.text.split('\n')
-        from pprint import pprint
-        pprint(lines)
-        pprint(r.headers)
-        code=int(lines[0])
-        if code!=0:
-            raise StatusError(code,lines[1])
-            
-
-
+        code = int(lines[0])
+        if code != 0:
+            raise StatusError(code, lines[1])
